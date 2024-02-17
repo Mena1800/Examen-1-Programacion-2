@@ -4,7 +4,7 @@ using System;
 using System.Collections;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-class Paciente
+public class Paciente
 {
     public double Cedula { get; set; }
     public string Nombre { get; set; }
@@ -12,23 +12,65 @@ class Paciente
     public string Direccion { get; set; }
     public string Tipodesangre { get; set; }
     public double Fechanacimiento { get; set; }
+
+    public Paciente() 
+    {
+        double cedula= Cedula;
+        string nombre= Nombre;
+        double telefono= Telefono;
+        string direccion= Direccion;
+        string tipodesangre= Tipodesangre;
+        double fechanacimiento= Fechanacimiento;  
+    }
+    public void Asigntreatment()
+    {
+
+    }
+
+}
+
+public class Medicamento
+{
     public double Codigo { get; set; }
     public string Nombmed { get; set; }
     public double Canmed { get; set; }
-}
 
-class Medicamento
-{
+    public Medicamento()
+    {
+        double codigo= Codigo;
+        string nombmed= Nombmed;
+        double canmed= Canmed;
+
+    }
+
+    public void Reducirinventario(int canmed)
+    {
+        Canmed -= canmed;
+
+    }
     public ArrayList codigomed = new ArrayList();
     public ArrayList Nombremed = new ArrayList();
     public ArrayList cantidadmed = new ArrayList();
 }
 
+public class treatment
+{
+    public Medicamento Medicamento { get; set; }
+    public double Canmed { get; set; }
+
+
+    public treatment(Medicamento medicamento, double canmed)
+    {
+        Medicamento = medicamento;
+        Canmed = canmed;
+    }
+}
+
 class Program
 {
-    static Paciente[] Pacientes = new Paciente[10];
+    static List<Paciente> Pacientes = new List<Paciente>();
     static int numpacientes = 0;
-    static Medicamento[] Medicamentos = new Medicamento[10];
+    static List<Medicamento> Medicamentos = new List<Medicamento>();
     static int nummedicamentos = 0;
     static void Main(string[] args)
 
@@ -46,8 +88,7 @@ class Program
             Console.WriteLine("2. Agregar medicamento al catálogo");
             Console.WriteLine("3. Asignar tratamiento médico a un paciente");
             Console.WriteLine("4. Consultas");
-            Console.WriteLine("5. Inicializar herramienta");
-            Console.WriteLine("6. Salir");
+            Console.WriteLine("5. Salir");
             Console.Write("Seleccione una de las opciones: ");
             if (int.TryParse(Console.ReadLine(), out opcion))
             {
@@ -65,11 +106,8 @@ class Program
                     case 4:
                         Consultas();
                         break;
+                   
                     case 5:
-                        inicializarherramienta();
-                        break;
-
-                    case 6:
                         Console.WriteLine("Saliendo del programa, muchas gracias!");
                         break;
                     default:
@@ -87,13 +125,7 @@ class Program
     }
 
 
-        static void inicializarherramienta() 
-    {
-        Pacientes = new Paciente[10];
-        numpacientes = 0;
-        Console.WriteLine("Herramienta Iniciada");
-
-    }
+       
 
     static void agregpaci()
 
@@ -136,7 +168,7 @@ class Program
                     return;
                 }
 
-                Pacientes[numpacientes] = new Paciente { Nombre = nombre, Telefono = telefono, Cedula = cedula, Tipodesangre = tipodesangre, Direccion = direccion, Fechanacimiento = fechanacimiento };
+                Pacientes[numpacientes] = new Paciente { Cedula = cedula, Nombre = nombre, Telefono = telefono, Direccion = direccion, Tipodesangre = tipodesangre, Fechanacimiento = fechanacimiento };
                 numpacientes++;
                 Console.WriteLine("Paciente agregado");
                 Console.WriteLine("Desea agregar otro paciente: 1/Si 2/No");
@@ -187,7 +219,7 @@ class Program
                     return;
                 }
 
-                Medicamentos[nummedicamentos] = new Medicamento { };
+                Medicamento medicamentos = new Medicamento{Codigo= codigo,Nombmed= nombmed,Canmed= canmed};
                 nummedicamentos++;
 
 
@@ -216,13 +248,33 @@ class Program
 
     static void asigtratpac()
     {
-
-
+        if (Medicamentos.Count == 0 || Pacientes.Count == 0)
+        {
+            Console.WriteLine("No se han agregado pacientes");
+            Console.WriteLine("Será redireccionado al menu principal");
+            return;
+        }
+        
     }
 
     static void Consultas()
     {
-
+        double cedulacon = double.Parse(Console.ReadLine());
+        bool encontrado = false;
+        bool error = false;
+        foreach (var Paciente in Pacientes)
+        {
+            if (Paciente != null && Paciente.Cedula == cedulacon)
+            {
+                Console.WriteLine($"Cedula: {Paciente.Cedula}, Nombre: {Paciente.Nombre}, direccion: {Paciente.Direccion}, tipo de sangre: {Paciente.Tipodesangre}, fecha nacimiento: {Paciente.Fechanacimiento}");
+                encontrado = true;
+                break;
+            }
+            if (!encontrado)
+            {
+                Console.WriteLine("Paciente no encontrado.");
+            }
+        }
 
     }
 
