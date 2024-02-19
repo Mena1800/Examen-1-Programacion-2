@@ -5,26 +5,30 @@ using System.Collections;
 using System.Net.Http.Headers;
 using System.Timers;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Data.Common;
+using System.Net.Quic;
 
 public class Paciente
 {
-    public double Cedula { get; set; }
+    public List<treatment> Treatments { get; set; }
+    public string Cedula { get; set; }
     public string Nombre { get; set; }
-    public double Telefono { get; set; }
+    public string Telefono { get; set; }
     public string Direccion { get; set; }
     public string Tipodesangre { get; set; }
-    public double Fechanacimiento { get; set; }
-    public List<treatment> Treatments { get; set; }
+    public int Fechanacimiento { get; set; }
+    
 
-    public Paciente(double cedula, string nombre,double telefono,string direccion, string tipodesangre, double fechanacimiento) 
+    public Paciente(string cedula, string nombre, string telefono,string direccion, string tipodesangre, int fechanacimiento) 
     {
-        cedula= Cedula;
-        nombre= Nombre;
-        telefono= Telefono;
-        direccion= Direccion;
-        tipodesangre= Tipodesangre;
-        fechanacimiento = Fechanacimiento;
         Treatments = new List<treatment>();
+        Cedula = cedula;
+        Nombre= nombre;
+        Telefono= telefono;
+        Direccion= direccion;
+        Tipodesangre = tipodesangre;
+        Fechanacimiento= fechanacimiento;
+        
     }
     public void Asigntreatment(treatment Treatment)
     {
@@ -35,15 +39,15 @@ public class Paciente
 
 public class Medicamento
 {
-    public double Codigo { get; set; }
+    public int Codigomeds { get; set; }
     public string Nombmed { get; set; }
-    public double Canmed { get; set; }
+    public int Canmed { get; set; }
 
-    public Medicamento(double codigo, string nombmed, double canmed)
+    public Medicamento(int codigomeds, string nombmed, int canmed)
     {
-        codigo= Codigo;
-        nombmed= Nombmed;
-        canmed= Canmed;
+        Codigomeds=  codigomeds;
+        Nombmed= nombmed;
+        Canmed= canmed;
 
     }
 
@@ -60,10 +64,10 @@ public class Medicamento
 public class treatment
 {
     public Medicamento Medicamento { get; set; }
-    public double Canmed { get; set; }
+    public int Canmed { get; set; }
 
 
-    public treatment(Medicamento medicamento, double canmed)
+    public treatment(Medicamento medicamento, int canmed)
     {
         Medicamento = medicamento;
         Canmed = canmed;
@@ -73,17 +77,15 @@ public class treatment
 class Program
 {
     static List<Paciente> Pacientes = new List<Paciente>();
-    static int numpacientes = 0;
-    static List<Medicamento> Medicamentos = new List<Medicamento>();
-    static int nummedicamentos = 0;
-    static List<treatment> Treatments= new List<treatment>();
+    static List<Medicamento> AsigMedicamentos = new List<Medicamento>();
+    static List<treatment> Treatments = new List<treatment>();
     static void Main(string[] args)
     {
         bool salir = false;
         int opcion;
         do
         {
-            
+
             Console.WriteLine("Bienvenido al Sistema de Gestión de Pacientes y Consultas Médicas");
             Console.WriteLine("");
             Console.WriteLine("");
@@ -103,7 +105,7 @@ class Program
                         break;
                         salir = false;
                     case 2:
-                        catalmed();
+                        asigmed();
                         break;
                         salir = false;
                     case 3:
@@ -116,7 +118,7 @@ class Program
                         salir = false;
 
                     case 5:
-                        Console.WriteLine("Saliendo del programa, muchas gracias!");
+                        Console.WriteLine("Saliendo del programa!");
                         salir = true;
                         break;
                     default:
@@ -130,196 +132,106 @@ class Program
             }
 
 
-        } while (salir==false);
+        } while (salir == false);
     }
 
 
-       
+
 
     static void agregpaci()
 
     {
-        bool Seguimos = true;
-        int seguir = 0;
-        do
-        {
-            if (nummedicamentos < 10)
-            {
-                Console.WriteLine("Ingrese los datos del paciente:");
-                Console.Write("Nombre: ");
-                string nombre = Console.ReadLine();
-                Console.Write("Telefono: ");
-                double telefono;
-                if (!double.TryParse(Console.ReadLine(), out telefono))
-                {
-                    Console.WriteLine("Numero de telefono invalido, ingrese un numero de telefono valido");
-                    Console.WriteLine("Será redireccionado al menu principal");
-                    return;
-                }
-                Console.Write("Cedula: ");
-                double cedula;
-                if (!double.TryParse(Console.ReadLine(), out cedula))
-                {
-                    Console.WriteLine("Numero de cedula invalido, ingrese un numero de cedula valido");
-                    Console.WriteLine("Será redireccionado al menu principal");
-                    return;
-                }
-                Console.Write("Tipo de sangre: ");
-                string tipodesangre = Console.ReadLine();
-                Console.WriteLine("Dirección: ");
-                string direccion = Console.ReadLine();
-                Console.WriteLine("Fecha de nacimiento: ");
-                double fechanacimiento;
-                if (!double.TryParse(Console.ReadLine(), out fechanacimiento))
-                {
-                    Console.WriteLine("Fecha de nacimiento invalida, ingrese una fecha de nacimiento valida");
-                    Console.WriteLine("Será redireccionado al menu principal");
-                    return;
-                }
+        Console.WriteLine("Ingrese los datos del paciente:");
+        Console.Write("Nombre: ");
+        string nombre = Console.ReadLine();
+        Console.Write("Telefono: ");
+        string telefono = Console.ReadLine(); ;
+        Console.Write("Cedula: ");
+        string cedula = Console.ReadLine(); ;
+        Console.Write("Tipo de sangre: ");
+        string tipodesangre = Console.ReadLine();
+        Console.WriteLine("Dirección: ");
+        string direccion = Console.ReadLine();
+        Console.WriteLine("Fecha de nacimiento: ");
+        int fechanacimiento = int.Parse(Console.ReadLine());
 
-                Paciente paciente = new Paciente(cedula,nombre,telefono,direccion,tipodesangre, fechanacimiento );
-                Pacientes.Add(paciente);
-                numpacientes++;
-                Console.WriteLine("Paciente agregado");
-                Console.WriteLine("Desea agregar otro paciente: 1/Si 2/No");
-                seguir = int.Parse(Console.ReadLine());
-                if (seguir==1)
-                {
-                    Seguimos = true;
-                }
-                else
-                {
-                    Seguimos = false;
-                    Console.Clear();
-                }
+        Paciente paciente = new Paciente(cedula, nombre, telefono, direccion, tipodesangre, fechanacimiento);
+        Pacientes.Add(paciente);
+        Console.WriteLine("Paciente agregado");
+        Console.Clear();
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.WriteLine();
 
-
-            }
-            else
-            {
-                Console.WriteLine("No se pueden incluir mas pacientes ya el limite de 10 pacientes ha sido alcanzado");
-            }
-        } while (Seguimos==true);
     }
-    static void catalmed()
+    static void asigmed()
     {
-        bool seguiremos = true;
-        int seguire = 0;
-        do
-        {
-            if (nummedicamentos < 10)
-            {
-                Console.WriteLine("Ingrese los datos del medicamento:");
-                Console.Write("Codigo del medicamento: ");
-                double codigo;
-                if (!double.TryParse(Console.ReadLine(), out codigo))
-                {
-                    Console.WriteLine("Codigo invalido, ingrese un Codigo valido");
-                    Console.WriteLine("Será redireccionado al menu principal");
-                    return;
-                }
-                Console.Write("Nombre del medicamento: ");
-                string nombmed = Console.ReadLine();
-                Console.Write("Cantidad de medicamentos: ");
-                double canmed;
-                if (!double.TryParse(Console.ReadLine(), out canmed))
-                {
-                    Console.WriteLine("Cantidad invalida, ingrese una cantidad valida");
-                    Console.WriteLine("Será redireccionado al menu principal");
-                    return;
-                }
 
-                Medicamento medicamentos = new Medicamento(codigo, nombmed, canmed);
-                Medicamentos.Add(medicamentos);
-                nummedicamentos++;
+        Console.WriteLine("Ingrese los datos del medicamento:");
+        Console.Write("Codigo del medicamento: ");
+        int codigo = int.Parse(Console.ReadLine());
+        Console.Write("Nombre del medicamento: ");
+        string nombmed = Console.ReadLine();
+        Console.Write("Cantidad de medicamentos: ");
+        int canmed = int.Parse(Console.ReadLine());
 
 
-                Console.WriteLine("Medicamento agregado");
-                Console.WriteLine("Desea agregar otro medicamento: 1/Si 2/No");
-                seguire = int.Parse(Console.ReadLine());
-                if (seguire == 1)
-                {
-                    seguiremos = true;
-                }
-                else
-                {
-                    seguiremos = false;
-                    Console.Clear();
-                }
+        Medicamento medicamentos = new Medicamento(codigo, nombmed, canmed);
+        AsigMedicamentos.Add(medicamentos);
+        Console.WriteLine("Medicamento agregado");
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.WriteLine();
 
-
-            }
-            else
-            {
-                Console.WriteLine("No se pueden agregar mas Medicamentos ya el limite de 10 medicamentos ha sido alcanzado");
-            }
-        } while (seguiremos == true);
 
     }
 
     static void asigtratpac()
     {
-        int Cedulaasignar = 0;
-        bool encontrados = false;
-        //int codigoasignar = 0;
-        int cantidadmedic = 0;
-        if (Medicamentos.Count == 0 || Pacientes.Count == 0)
+
+        if (AsigMedicamentos.Count == 0 || Pacientes.Count == 0)
         {
             Console.WriteLine("No se han agregado pacientes");
             Console.WriteLine("Será redireccionado al menu principal");
             return;
         }
-        Console.WriteLine("Ingrese el numero de cedula del paciente al cual desea agregar un tratamiento: ");
-        Cedulaasignar = int.Parse(Console.ReadLine());
-        foreach (var Paciente in Pacientes)
+        Console.WriteLine("Estos son los Pacientes ingresados: ");
+        for (int i = 0; i < Pacientes.Count; i++)
         {
-            if (Paciente != null && Paciente.Cedula == Cedulaasignar)
-            {
-                Console.WriteLine($"Cedula: {Paciente.Cedula}, Nombre: {Paciente.Nombre}");
-                encontrados = true;
-                break;
-            }
-           // if (!encontrados)
-            //{
-              //  Console.WriteLine("Paciente no encontrado.");
-                //return;
-            //}
+            Console.WriteLine($"{i + 1}. {Pacientes[i].Nombre}");
         }
-        Console.WriteLine("Ingrese el codigo del medicamento que desea agregar: ");
-        int codigoasignar = Convert.ToInt32(Console.ReadLine());
-        Medicamento medicamento = Medicamentos.FirstOrDefault(m => m.Codigo == codigoasignar);
-        Paciente paciente = Pacientes[codigoasignar];
-        foreach (var Medicamento in Medicamentos)
+        Console.WriteLine("Seleccione el numero de paciente que desea utilizar");
+        int numpaciente = int.Parse(Console.ReadLine()) - 1;
+        if (numpaciente >= Pacientes.Count)
         {
-            if (Medicamento != null && Medicamento.Codigo == codigoasignar)
-            {
-                Console.WriteLine($"El Medicamento ha sido encontrado, el medicamento {Medicamento.codigomed} contiene una cantidad en inventario de {Medicamento.cantidadmed}");
-                Console.WriteLine("Cuanta cantidad de medicamento desea agregar al paciente?: ");
-                cantidadmedic = int.Parse(Console.ReadLine());
-                if (cantidadmedic <= medicamento.Canmed)
-                {
-                    paciente.Asigntreatment(new treatment(Medicamento, cantidadmedic));
-                    medicamento.Reducirinventario(cantidadmedic);
-                    Console.WriteLine("Medicamento agregado al paciente");
-
-                }
-                else
-                {
-                    Console.WriteLine("La cantidad ingresada no puede ser asignada ya que no hay suficiente inventario");
-                }
-
-            }
-            else
-            {
-                Console.WriteLine("El Medicamento ingresado no existe");
-                Console.WriteLine("Será redireccionado al menu principal");
-                return;
-            }
-            
+            Console.WriteLine("El paciente seleccionado no esta disponible en la lista");
         }
+        Paciente paciente = Pacientes[numpaciente];
+        Console.WriteLine("Estos son los Medicamentos ingresados: ");
+        foreach (var medicamentoscons in AsigMedicamentos)
+        {
+            Console.WriteLine($"{medicamentoscons.Codigomeds}, {medicamentoscons.Nombmed},  Cantidad: {medicamentoscons.Canmed}");
+        }
+        Console.WriteLine("Seleccione el codigo del medicamento a utilizar: ");
+        int Codmedica = int.Parse(Console.ReadLine()) - 1;
+        Medicamento medicamentos = AsigMedicamentos.FirstOrDefault(me => me.Codigomeds == Codmedica);
+        Console.WriteLine("Ingrese la cantidad a ingresar en inventario");
+        int canasigmed = Convert.ToInt32(Console.ReadLine())-1;
         
 
+        Paciente Paciente = Pacientes[numpaciente];
+        paciente.Asigntreatment(new treatment(medicamentos, canasigmed));
+        Console.WriteLine("Medicamento agregado al paciente");
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.WriteLine();
+
+
     }
+
+
+
+
     static void Registrados()
     {
         Console.WriteLine("Estos son los pacientes que fueron registrados: ");
@@ -337,33 +249,35 @@ class Program
 
             }
         }
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.WriteLine();
+
 
     }
     static void recetados()
     {
         List<System.String> MedsRecetados = new List<System.String>();
         Console.WriteLine("Los siguientes son los medicamentos que fueron recetados a los pacientes: ");
-        foreach (var Paciente in Pacientes)
-        {
-            foreach (var treatment in Paciente.Treatments)
-            {
-                MedsRecetados.Add(treatment.Medicamento.Nombmed);
-            }
-        }
-        foreach (var Medicamento in MedsRecetados)
+       
+        foreach (var Medicamento in Treatments)
         {
             Console.WriteLine(Medicamento);
         }
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.WriteLine();
 
     }
+    
 
-    static void recetadosxedad(double Fechanacimiento)
+    static void recetadosxedad()
     {
         Console.WriteLine("Los siguientes son los datos de los Pacientes segun su rango de edad: ");
-        double[] yearold = {0,0,0,0 };
+        int[] yearold = {0,0,0,0 };
         foreach (var Paciente in Pacientes)
         {
-            double edad = 2024 - Fechanacimiento;
+            int edad = 2024- (Paciente.Fechanacimiento);
             if (edad >= 0 || edad <= 10)
             {
                 yearold[0]++;
@@ -387,6 +301,10 @@ class Program
         Console.WriteLine($"Pacientes con edades de 11 a 30: {yearold[1]}");
         Console.WriteLine($"Pacientes con edades de 31 a 50: {yearold[2]}");
         Console.WriteLine($"Pacientes con edades mayores a los 51 años: {yearold[3]}");
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.WriteLine();
+
     }
 
     static void recetadosxnombre()
@@ -395,8 +313,11 @@ class Program
         Console.WriteLine("Los siguientes son los pacientes ingresados ordenados por nombre: ");
         foreach (var Paciente in xnombre)
         {
-            Console.WriteLine($"Nombre: {Paciente.Nombre}");
+            Console.WriteLine($"Nombre del paciente: {Paciente.Nombre}");
         }
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.WriteLine();
 
 
     }
@@ -404,10 +325,9 @@ class Program
 
     static void Consultas()
     {
-        double cedulacon = double.Parse(Console.ReadLine());
-        bool encontrado = false;
-        bool error = false;
-        
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.WriteLine();
         Console.WriteLine("Bienvenido al menu de consultas");
         Console.WriteLine("1. Cantidad total de pacientes registrados");
         Console.WriteLine("2. Reporte de todos los medicamentos recetados sin repetirlos");
@@ -425,8 +345,8 @@ class Program
                 recetados();
                 break;
             case 3:
-                
-                recetadosxnombre();
+
+                recetadosxedad();
                 break;
             case 4:
                 recetadosxnombre();
@@ -442,6 +362,7 @@ class Program
 
     }
 
+   
 }
 
 
